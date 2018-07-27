@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - subordinate
+  - barrier
   layers:
   - Default
   - TransparentFX

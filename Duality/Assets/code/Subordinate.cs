@@ -9,6 +9,7 @@ public class Subordinate : MonoBehaviour {
 	public float speed;
 	public float slowDownDistance;
 	public float controlDistance;
+	public float fightStateDuration;
 
 	public SharedCharacters sc;
 
@@ -17,57 +18,111 @@ public class Subordinate : MonoBehaviour {
 
 	public Camera cameraObject;
 
-	bool awakened;
-	bool massMovement;
 
-	bool fightOrdered;
+	private bool awakened;
+	private bool massMovement;
 
-	// Use this for initialization
+	private bool fightOrdered;
+	private bool barrierOrdered;
+
+	private float activeTime;
+
+	//red exclusive
+	private Vector2 returnVector;
+
+	public bool getFightOrdered () {
+		return fightOrdered;
+	}
+
+	public bool getBarrierOrdered () {
+		return barrierOrdered;
+	}
+
 	void Start () {
 		
 		awakened = false;
 		massMovement = false;
 		fightOrdered = false;
+		barrierOrdered = false;
 
-	}
+		//returnVector = new Vector2 (0, 0);
 
-	bool playerInCommandPosition (GameObject controlObject) {
-		return Mathf.Sqrt (Mathf.Pow (controlObject.transform.position.x - transform.position.x, 2)
-		+ Mathf.Pow (controlObject.transform.position.y - transform.position.y, 2)) <= controlDistance;
+		activeTime = Time.timeSinceLevelLoad;
+
 	}
 		
 	void OnTriggerEnter2D (Collider2D other) {
-		if (other.tag != "subordinate")
+		if (other.tag != "subordinate") {
 			massMovement = false;
-	}
+		} else {
 
-	// Update is called once per frame
+			Subordinate otherThing = other.gameObject.GetComponent <Subordinate> ();
+
+			if (otherThing.blue != this.blue && fightOrdered) {
+
+				if (!otherThing.getFightOrdered ()) {
+					Destroy (other.gameObject);
+				}
+
+			}
+
+		}
+	}
+		
 	void Update () {
 
 		GameObject controlObject = (blue) ? blueObject : redObject;
 
-		if (Input.GetKey (KeyCode.Mouse0) && (sc.getIsControllingBlue() == blue)) {
+		//-----------continual check section
+		barrierOrdered = Input.GetKey (KeyCode.E) && playerInCommandPosition (controlObject);
+
+		//-----------time section
+		if (fightOrdered && Time.timeSinceLevelLoad > activeTime + fightStateDuration) {
+
+			fightOrdered = false;
+
+			if (!blue) {
+
+				moveToPosition (transform.position, returnVector);
+
+				massMovement = true;
+
+			}
+
+		}
+
+		//------------control section
+		if (Input.GetKey (KeyCode.Mouse0) && sc.getIsControllingBlue() == blue) {
 
 			//////////shift to be fight active key
-			if (Input.GetKey (KeyCode.Q) && awakened) {
+			if (Input.GetKey (KeyCode.LeftShift) && playerInCommandPosition (controlObject)) {
+
+				fightOrdered = true;
+
+				activeTime = Time.timeSinceLevelLoad;
+
+				if (!blue) {
+
+					returnVector = transform.position;
+
+					moveTowardsDirection (controlObject.transform.position, dMousePos ());
+
+				} else {
+
+					moveToPosition (dMousePos ());
+
+				}
+
+			} else if (Input.GetKey (KeyCode.Q) && awakened) {
 				massMovement = true;
 
 				//////////idea: make blue slow down but not red
 				if (blue) {
-					Vector2 movement = evenDirectionalMovement (transform.position, controlObject.transform.position);
-					float speedModifier = getSpeedModifier (transform.position, controlObject.transform.position);
-
-					GetComponent <Rigidbody2D> ().velocity = new Vector2 (movement.x * speedModifier * speed,
-						movement.y * speedModifier * speed);
+					moveToPosition (transform.position, controlObject.transform.position);
 
 				} else {
 
-					Vector3 mousePosInSpace = Camera.main.ScreenToWorldPoint(
-						new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f) );
-
-					Vector2 movement = evenDirectionalMovement (controlObject.transform.position, mousePosInSpace);
-
-					GetComponent <Rigidbody2D> ().velocity = new Vector2 (movement.x * speed, movement.y * speed);
+					moveTowardsDirection (controlObject.transform.position, dMousePos ());
 
 				}
 
@@ -76,10 +131,10 @@ public class Subordinate : MonoBehaviour {
 			} else if (playerInCommandPosition (controlObject)) {
 				awakened = true;
 				massMovement = false;
-				GetComponent <Rigidbody2D> ().velocity = getMovement ();
+				moveToPosition (dMousePos ());
 			}
 
-		} else if (!massMovement) {
+		} else if (!massMovement && (blue || !fightOrdered) ) {
 
 			GetComponent <Rigidbody2D> ().velocity = new Vector2 (0, 0);
 
@@ -87,19 +142,41 @@ public class Subordinate : MonoBehaviour {
 
 	}
 
-	Vector2 getMovement () {
+	//returns mouse position in world space (kinda unneccesary)
+	Vector3 dMousePos () {
+		return Camera.main.ScreenToWorldPoint(
+			new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f) );
+	}
 
+	// moves the subordinate in a direction defined by to different vector3 points
+	void moveTowardsDirection (Vector3 placeFrom, Vector3 placeTo) {
 
-		Vector3 mousePosInSpace = Camera.main.ScreenToWorldPoint( new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f) );
+		Vector2 movement = evenDirectionalMovement (placeFrom, placeTo);
 
-		Vector2 moveVector = evenDirectionalMovement (transform.position, mousePosInSpace);
-
-		float speedModifier = getSpeedModifier (transform.position, mousePosInSpace);
-
-		return new Vector2 (moveVector.x * speed * speedModifier, moveVector.y * speed * speedModifier);
+		GetComponent <Rigidbody2D> ().velocity = new Vector2 (movement.x * speed, movement.y * speed);
 
 	}
 
+	// moves subordinate to a vector3 point defined by the direction and length between two vector3 points
+	void moveToPosition (Vector3 placeFrom, Vector3 placeTo) {
+
+		Vector2 movement = evenDirectionalMovement (placeFrom, placeTo);
+
+		float speedModifier = getSpeedModifier (placeFrom, placeTo);
+
+		GetComponent <Rigidbody2D> ().velocity =
+			new Vector2 (movement.x * speed * speedModifier, movement.y * speed * speedModifier);
+
+	}
+
+	// previous moveToPosition but place from is defined by position in world space
+	void moveToPosition (Vector3 placeTo) {
+
+		moveToPosition (transform.position, placeTo);
+
+	}
+
+	// gets proportional slow down from to vector3 points
 	float getSpeedModifier (Vector3 placeFrom, Vector3 placeTo) {
 
 		float speedModifier = Mathf.Sqrt (Mathf.Pow (placeTo.x - placeFrom.x, 2)
@@ -112,6 +189,7 @@ public class Subordinate : MonoBehaviour {
 
 	}
 
+	// returns the base direction (max 1) from two vector3 points
 	Vector2 evenDirectionalMovement (Vector3 placeFrom, Vector3 placeTo) {
 
 		Vector2 rawDifference = new Vector2 (placeTo.x - placeFrom.x, placeTo.y - placeFrom.y);
@@ -121,6 +199,12 @@ public class Subordinate : MonoBehaviour {
 
 		return new Vector2 (rawDifference.x / biggerFloat, rawDifference.y / biggerFloat);
 
+	}
+		
+	// returns whether or not the subordinate is in command position
+	bool playerInCommandPosition (GameObject controlObject) {
+		return Mathf.Sqrt (Mathf.Pow (controlObject.transform.position.x - transform.position.x, 2)
+			+ Mathf.Pow (controlObject.transform.position.y - transform.position.y, 2)) <= controlDistance;
 	}
 
 

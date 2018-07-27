@@ -51,6 +51,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\code\Barrier.cs" />
+     <Compile Include="Assets\code\Communication.cs" />
      <Compile Include="Assets\code\SharedCharacters.cs" />
      <Compile Include="Assets\code\Subordinate.cs" />
  <Reference Include="UnityEngine.UI">

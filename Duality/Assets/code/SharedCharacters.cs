@@ -7,6 +7,8 @@ public class SharedCharacters : MonoBehaviour {
 	public GameObject red;
 	public GameObject blue;
 
+	public TextMesh x;
+
 	public GameObject cameraObject;
 
 	public float speed;
@@ -16,6 +18,7 @@ public class SharedCharacters : MonoBehaviour {
 	void Start () {
 
 		isControllingBlue = true;
+
 
 	}
 	
@@ -46,6 +49,10 @@ public class SharedCharacters : MonoBehaviour {
 		currentlyUncontrolled.GetComponent <Rigidbody2D> ().velocity = new Vector2 (0, 0);
 
 		cameraObject.transform.position = new Vector3 (currentlyControlled.transform.position.x, currentlyControlled.transform.position.y, -10);
+
+	}
+
+	public void displayText (string text) {
 
 	}
 
