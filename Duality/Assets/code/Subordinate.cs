@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Subordinate : MonoBehaviour {
 
+	public bool startEmployed;
+
 	public bool blue;
 
 	public float speed;
@@ -18,6 +20,9 @@ public class Subordinate : MonoBehaviour {
 
 	public Camera cameraObject;
 
+	public bool disableCombat;
+	public bool disableBarrier;
+	public bool disableGlobal;
 
 	private bool awakened;
 	private bool massMovement;
@@ -26,6 +31,8 @@ public class Subordinate : MonoBehaviour {
 	private bool barrierOrdered;
 
 	private float activeTime;
+
+	private bool employed;
 
 	//red exclusive
 	private Vector2 returnVector;
@@ -39,7 +46,9 @@ public class Subordinate : MonoBehaviour {
 	}
 
 	void Start () {
-		
+
+		employed = startEmployed;
+
 		awakened = false;
 		massMovement = false;
 		fightOrdered = false;
@@ -71,10 +80,21 @@ public class Subordinate : MonoBehaviour {
 		
 	void Update () {
 
+		if (employed) {
+			/// TODO add some animation or something
+			GetComponent <Rigidbody2D> ().velocity = new Vector2 (0, 0);
+			return;
+		}
+
 		GameObject controlObject = (blue) ? blueObject : redObject;
 
+
+		// E
+		//
+		// bottom text
+
 		//-----------continual check section
-		barrierOrdered = Input.GetKey (KeyCode.E) && playerInCommandPosition (controlObject);
+		barrierOrdered = !disableBarrier && Input.GetKey (KeyCode.E) && playerInCommandPosition (controlObject);
 
 		//-----------time section
 		if (fightOrdered && Time.timeSinceLevelLoad > activeTime + fightStateDuration) {
@@ -95,7 +115,7 @@ public class Subordinate : MonoBehaviour {
 		if (Input.GetKey (KeyCode.Mouse0) && sc.getIsControllingBlue() == blue) {
 
 			//////////shift to be fight active key
-			if (Input.GetKey (KeyCode.LeftShift) && playerInCommandPosition (controlObject)) {
+			if (!disableCombat && Input.GetKey (KeyCode.LeftShift) && playerInCommandPosition (controlObject)) {
 
 				fightOrdered = true;
 
@@ -113,7 +133,8 @@ public class Subordinate : MonoBehaviour {
 
 				}
 
-			} else if (Input.GetKey (KeyCode.Q) && awakened) {
+			///////////Q global
+			} else if (!disableGlobal && Input.GetKey (KeyCode.Q) && awakened) {
 				massMovement = true;
 
 				//////////idea: make blue slow down but not red
@@ -128,6 +149,7 @@ public class Subordinate : MonoBehaviour {
 
 				awakened = false;
 
+			
 			} else if (playerInCommandPosition (controlObject)) {
 				awakened = true;
 				massMovement = false;
@@ -207,5 +229,10 @@ public class Subordinate : MonoBehaviour {
 			+ Mathf.Pow (controlObject.transform.position.y - transform.position.y, 2)) <= controlDistance;
 	}
 
+	public void setEmployed (bool state) {
+
+		employed = state;
+
+	}
 
 }

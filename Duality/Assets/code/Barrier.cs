@@ -15,6 +15,10 @@ public class Barrier : MonoBehaviour {
 			wall.isTrigger = true;
 
 	}
+
+	/*public void x (System.Func<string> y) {
+		y ();
+	}*/
 	
 	// Update is called once per frame
 	void Update () {
