@@ -57,6 +57,7 @@
      <Compile Include="Assets\code\SharedCharacters.cs" />
      <Compile Include="Assets\code\Subordinate.cs" />
      <Compile Include="Assets\code\TimedText.cs" />
+     <None Include="Assets\Text\test level\test timed text.txt" />
      <None Include="Assets\Text\test level\test.txt" />
      <None Include="Assets\Text\skirmish level\first switch.txt" />
  <Reference Include="UnityEngine.UI">

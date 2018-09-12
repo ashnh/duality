@@ -39,6 +39,8 @@ public class SharedCharacters : MonoBehaviour {
 
 		canSwitch = !startSwitchOff;
 
+
+
 		//Debug.Log (currentBlueLine);
 		//Debug.Log (currentBlueLine +=1);
 		//Debug.Log (currentBlueLine);
@@ -113,6 +115,11 @@ public class SharedCharacters : MonoBehaviour {
 
 	}
 
+	/// <summary>
+	/// Turns the on convo. the red and blue lines should be of about equal length.
+	/// </summary>
+	/// <param name="_redScript"> all red lines of type string </param>
+	/// <param name="_blueScript">all blue lines of type string</param>
 	public void turnOnConvo (ArrayList _redScript, ArrayList _blueScript) {
 
 		redScript = _redScript;
@@ -123,6 +130,9 @@ public class SharedCharacters : MonoBehaviour {
 
 	}
 
+	/// <summary>
+	/// Closes the convo.
+	/// </summary>
 	public void closeConvo () {
 
 		inText = false;
@@ -132,18 +142,30 @@ public class SharedCharacters : MonoBehaviour {
 
 	}
 
+	/// <summary>
+	/// Gets the is controlling blue.
+	/// </summary>
+	/// <returns><c>true</c>, if is controlling blue was gotten, <c>false</c> otherwise.</returns>
 	public bool getIsControllingBlue () {
 
 		return isControllingBlue;
 
 	}
 
+	/// <summary>
+	/// Toggles the whether or not the player can switch between characters.
+	/// </summary>
+	/// <param name="state">If set to <c>true</c> state.</param>
 	public void toggleCanSwitch (bool state) {
 
 		canSwitch = state;
 
 	}
 
+	/// <summary>
+	/// Gets the can switch.
+	/// </summary>
+	/// <returns><c>true</c>, if can switch was gotten, <c>false</c> otherwise.</returns>
 	public bool getCanSwitch () {
 		return canSwitch;
 	}

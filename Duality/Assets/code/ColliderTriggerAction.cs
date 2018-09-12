@@ -24,8 +24,7 @@ public class ColliderTriggerAction : MonoBehaviour {
 						▒▒▒▒▀▀▀▀▀▀▀▒▒▒▒▒▒▒▒▒▒▒▒▒
 		-startTimedText, npc text start
 		-changeToLevel, insert snark
-
-
+		-toggleBarrierState, turns on and off walls
 
 
 
@@ -35,16 +34,22 @@ public class ColliderTriggerAction : MonoBehaviour {
 
 	public bool oneTime;
 
-	// name of the specified tag (if specified)
-	public string tagName;
+	public bool timedTextWithArgument;
+
+	// name of the specified tags (if specified), split by "
+	public string tagNames;
 
 	public string type;
+
+	public TimedText timedText;
 
 	public TextAsset script;
 
 	public GameObject destroyObject;
 
 	public SharedCharacters sc;
+
+	public Barrier barrier;
 
 	bool destroyed;
 
@@ -53,11 +58,18 @@ public class ColliderTriggerAction : MonoBehaviour {
 	// RRR: red line
 
 	private string[] lines;
+	private string[] tagNameList;
+	private bool empty;
 
 	private ArrayList blueLines; 
 	private ArrayList redLines;
 
 	void Start () {
+
+		if (tagNames.Length > 0)
+			tagNameList = tagNames.Split ('"');
+		else
+			empty = true;
 		switch (type) {
 		case "convo":
 			blueLines = new ArrayList ();
@@ -75,7 +87,6 @@ public class ColliderTriggerAction : MonoBehaviour {
 				else
 					redLines.Add (x.Substring (3));
 				
-
 			}
 			break;
 		case "destroy":
@@ -86,10 +97,26 @@ public class ColliderTriggerAction : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D (Collider2D other) {
-		if (other.tag.Equals (tagName) || tagName.Equals("")) {
+
+		bool acceptedString = false;
+		if (!empty) {
+			foreach (string x in tagNameList) {
+				if (x.Equals (other.tag))
+					acceptedString = true;
+			}
+		}
+
+		if ((empty || acceptedString) && !other.isTrigger) {
 			switch (type) {
 			case "convo":
 				sc.turnOnConvo (redLines, blueLines);
+				checkOff ();
+				break;
+			case "startTimedText":
+				if (timedTextWithArgument)
+					timedText.startText (script);
+				else
+					timedText.startText ();
 				checkOff ();
 				break;
 			case "toggleCanSwitch":
@@ -105,9 +132,15 @@ public class ColliderTriggerAction : MonoBehaviour {
 					Destroy (destroyObject);
 					destroyed = true;
 				}
+				checkOff ();
 				break;
 			case "restartLevel":
 				UnityEngine.SceneManagement.SceneManager.LoadScene (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+				checkOff ();
+				break;
+			case "toggleBarrierState":
+				barrier.setWall (!barrier.wallIsActivated());
+				checkOff ();
 				break;
 			}
 		}

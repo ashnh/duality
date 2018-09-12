@@ -4,21 +4,17 @@ using UnityEngine;
 
 public class Barrier : MonoBehaviour {
 
-	public bool destroyed;
+	public bool startDestroyed;
 
 	public Collider2D wall;
 
 	// Use this for initialization
 	void Start () {
 
-		if (destroyed)
+		if (startDestroyed)
 			wall.isTrigger = true;
 
 	}
-
-	/*public void x (System.Func<string> y) {
-		y ();
-	}*/
 	
 	// Update is called once per frame
 	void Update () {
@@ -44,9 +40,21 @@ public class Barrier : MonoBehaviour {
 
 	}
 
+	/// <summary>
+	/// Sets the wall.
+	/// </summary>
+	/// <param name="turnOn">If set to <c>true</c> turn on.</param>
 	public void setWall (bool turnOn) {
 
 		wall.isTrigger = !turnOn;
 
+	}
+
+	/// <summary>
+	/// returns whether the wall is activated
+	/// </summary>
+	/// <returns><c>true</c>, if is activated, <c>false</c> otherwise.</returns>
+	public bool wallIsActivated () {
+		return !wall.isTrigger;
 	}
 }

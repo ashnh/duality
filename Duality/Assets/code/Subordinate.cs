@@ -95,6 +95,7 @@ public class Subordinate : MonoBehaviour {
 
 		//-----------continual check section
 		barrierOrdered = !disableBarrier && Input.GetKey (KeyCode.E) && playerInCommandPosition (controlObject);
+		gameObject.tag = (fightOrdered) ? "fightingSubordinate" : "subordinate";
 
 		//-----------time section
 		if (fightOrdered && Time.timeSinceLevelLoad > activeTime + fightStateDuration) {
