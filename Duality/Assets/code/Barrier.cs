@@ -23,7 +23,7 @@ public class Barrier : MonoBehaviour {
 
 	void OnTriggerEnter2D (Collider2D other) {
 
-		if (other.tag == "subordinate") {
+		if (other.tag.Equals("subordinate") || other.tag.Equals("barrierSubordinate")) {
 
 			Subordinate touching = other.gameObject.GetComponent <Subordinate> ();
 

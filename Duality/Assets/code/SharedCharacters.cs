@@ -14,6 +14,11 @@ public class SharedCharacters : MonoBehaviour {
 
 	public bool startSwitchOff;
 
+	public bool blueIsGone;
+	public bool redIsGone;
+
+	public int nextLevel;
+
 	bool inText;
 
 	// ugh I ain't feeling it today bois TODO change later
@@ -53,19 +58,39 @@ public class SharedCharacters : MonoBehaviour {
 
 		if (!inText) {
 
-			blueTextMesh.text = "";
-			redTextMesh.text = "";
+			if(!blueIsGone)
+				blueTextMesh.text = "";
+			if(!redIsGone)
+				redTextMesh.text = "";
 
 		} else {
 
-			blueTextMesh.text = (string) blueScript[currentBlueLine];
-			redTextMesh.text = (string) redScript[currentRedLine];
+			if(!blueIsGone)
+				blueTextMesh.text = (string) blueScript[currentBlueLine];
+			if(!redIsGone)
+				redTextMesh.text = (string) redScript[currentRedLine];
 
 		}
 			
 
 		GameObject currentlyControlled = (isControllingBlue) ? blue : red;
 		GameObject currentlyUncontrolled = (!isControllingBlue) ? blue : red;
+
+		if (redIsGone) {
+
+			if (blueIsGone) {
+				UnityEngine.SceneManagement.SceneManager.LoadScene (nextLevel);
+				return;
+			} else {
+				currentlyControlled = blue;
+				currentlyUncontrolled = red;
+			}
+
+		} else if (blueIsGone) {
+			currentlyControlled = red;
+			currentlyUncontrolled = blue;
+		}
+			
 
 		if (Input.GetKey (KeyCode.W)) {
 			currentlyControlled.GetComponent <Rigidbody2D> ().velocity = new Vector2 (currentlyControlled.GetComponent <Rigidbody2D> ().velocity.x, speed);
@@ -109,7 +134,8 @@ public class SharedCharacters : MonoBehaviour {
 
 		}
 
-		currentlyUncontrolled.GetComponent <Rigidbody2D> ().velocity = new Vector2 (0, 0);
+		if (!(blueIsGone || redIsGone))
+			currentlyUncontrolled.GetComponent <Rigidbody2D> ().velocity = new Vector2 (0, 0);
 
 		cameraObject.transform.position = new Vector3 (currentlyControlled.transform.position.x, currentlyControlled.transform.position.y, -10);
 
@@ -153,12 +179,13 @@ public class SharedCharacters : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Toggles the whether or not the player can switch between characters.
+	/// Toggles the whether or not the player can switch between characters. (if neither character is gone)
 	/// </summary>
 	/// <param name="state">If set to <c>true</c> state.</param>
 	public void toggleCanSwitch (bool state) {
 
-		canSwitch = state;
+		if (!(redIsGone || blueIsGone))
+			canSwitch = state;
 
 	}
 
@@ -168,5 +195,29 @@ public class SharedCharacters : MonoBehaviour {
 	/// <returns><c>true</c>, if can switch was gotten, <c>false</c> otherwise.</returns>
 	public bool getCanSwitch () {
 		return canSwitch;
+	}
+
+	/// <summary>
+	/// Removes the blue character and turns canSwitch false.
+	/// </summary>
+	public void removeBlue () {
+
+		blueIsGone = true;
+		canSwitch = false;
+		isControllingBlue = false;
+		Destroy (blue);
+
+	}
+
+	/// <summary>
+	/// Removes the red character and turns canSwitch false.
+	/// </summary>
+	public void removeRed () {
+
+		redIsGone = true;
+		canSwitch = false;
+		isControllingBlue = true;
+		Destroy (red);
+
 	}
 }

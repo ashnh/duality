@@ -23,7 +23,7 @@ public class ColliderTriggerAction : MonoBehaviour {
 						▒▒▒█▄░░░░░▀█▄▄▄█▀▀▒▒▒▒▒▒ 
 						▒▒▒▒▀▀▀▀▀▀▀▒▒▒▒▒▒▒▒▒▒▒▒▒
 		-startTimedText, npc text start
-		-changeToLevel, insert snark
+		-takeOutPlayerCharacter, make a player character leave the scene
 		-toggleBarrierState, turns on and off walls
 
 
@@ -136,6 +136,13 @@ public class ColliderTriggerAction : MonoBehaviour {
 				break;
 			case "restartLevel":
 				UnityEngine.SceneManagement.SceneManager.LoadScene (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+				checkOff ();
+				break;
+			case "takeOutPlayerCharacter":
+				if (sc.getIsControllingBlue ())
+					sc.removeBlue ();
+				else
+					sc.removeRed ();
 				checkOff ();
 				break;
 			case "toggleBarrierState":

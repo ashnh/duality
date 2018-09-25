@@ -86,7 +86,13 @@ public class Subordinate : MonoBehaviour {
 			return;
 		}
 
+		if ((blue && sc.getIsControllingBlue() && sc.blueIsGone) || (!blue && !sc.getIsControllingBlue() && sc.redIsGone)) {
+			GetComponent <Rigidbody2D> ().velocity = new Vector2 (0, 0);
+			return;
+		}
+
 		GameObject controlObject = (blue) ? blueObject : redObject;
+
 
 
 		// E
@@ -96,6 +102,8 @@ public class Subordinate : MonoBehaviour {
 		//-----------continual check section
 		barrierOrdered = !disableBarrier && Input.GetKey (KeyCode.E) && playerInCommandPosition (controlObject);
 		gameObject.tag = (fightOrdered) ? "fightingSubordinate" : "subordinate";
+		gameObject.tag = (barrierOrdered) ? "barrierSubordinate" : gameObject.tag;
+		gameObject.tag = (massMovement) ? "globalSubordinate" : gameObject.tag;
 
 		//-----------time section
 		if (fightOrdered && Time.timeSinceLevelLoad > activeTime + fightStateDuration) {
